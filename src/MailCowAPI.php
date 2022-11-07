@@ -104,13 +104,13 @@ class MailCowAPI
             case 'GET':
                 return $this->getHttpClient()->get($url, ['verify' => false, 'headers' => ['Content-Type' => 'application/json', 'Accept' => 'application/json', 'x-api-key' => $this->apiToken]]);
             case 'POST':
-                return $this->getHttpClient()->post($url, ['verify' => false, 'headers' => ['Content-Type' => 'application/json', 'Accept' => 'application/json', 'x-api-key' => $this->apiToken], 'form_params' => $params,]);
+                return $this->getHttpClient()->post($url, ['verify' => false, 'headers' => ['Content-Type' => 'application/json', 'Accept' => 'application/json', 'x-api-key' => $this->apiToken], 'json' => $params,]);
             case 'PUT':
-                return $this->getHttpClient()->put($url, ['verify' => false, 'headers' => ['Content-Type' => 'application/json', 'Accept' => 'application/json', 'x-api-key' => $this->apiToken], 'form_params' => $params,]);
+                return $this->getHttpClient()->put($url, ['verify' => false, 'headers' => ['Content-Type' => 'application/json', 'Accept' => 'application/json', 'x-api-key' => $this->apiToken], 'json' => $params,]);
             case 'DELETE':
-                return $this->getHttpClient()->delete($url, ['verify' => false, 'headers' => ['Content-Type' => 'application/json', 'Accept' => 'application/json', 'x-api-key' => $this->apiToken], 'form_params' => $params,]);
+                return $this->getHttpClient()->delete($url, ['verify' => false, 'headers' => ['Content-Type' => 'application/json', 'Accept' => 'application/json', 'x-api-key' => $this->apiToken], 'json' => $params,]);
             case 'PATCH':
-                return $this->getHttpClient()->patch($url, ['verify' => false, 'headers' => ['Content-Type' => 'application/json', 'Accept' => 'application/json', 'x-api-key' => $this->apiToken], 'form_params' => $params,]);
+                return $this->getHttpClient()->patch($url, ['verify' => false, 'headers' => ['Content-Type' => 'application/json', 'Accept' => 'application/json', 'x-api-key' => $this->apiToken], 'json' => $params,]);
             default:
                 throw new ParameterException('Wrong HTTP method passed');
         }
