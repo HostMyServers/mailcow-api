@@ -27,7 +27,7 @@ class MailCowAPI
      * @param string $token API Token for all requests
      * @param null $httpClient
      */
-    public function __construct(string $token, string $url, $httpClient = null) {
+    public function __construct(string $url, string $token, $httpClient = null) {
         $this->apiToken = $token;
         $this->setHttpClient($httpClient);
         $this->setCredentials($token, $url);

@@ -13,7 +13,7 @@ class Credentials
      * @param string $token
      * @param string $url only Host URL without HTTP/s or /
      */
-    public function __construct(string $token, string $url)
+    public function __construct(string $url, string $token)
     {
         $this->token = $token;
         $this->url = 'https://' . $url . '/api/v1/';
