@@ -1,8 +1,8 @@
 <?php
 
-namespace MailCowAPI\MailBoxes;
+namespace Vexura\MailBoxes;
 
-use MailCowAPI\MailCowAPI;
+use Vexura\MailCowAPI;
 
 class MailBoxes
 {

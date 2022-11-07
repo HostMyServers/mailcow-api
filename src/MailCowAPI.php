@@ -1,14 +1,14 @@
 <?php
 
 
-namespace MailCowAPI;
+namespace Vexura;
 
 use GuzzleHttp\Client;
-use MailCowAPI\Aliases\Aliases;
-use MailCowAPI\AntiSpam\AntiSpam;
-use MailCowAPI\Domains\Domains;
-use MailCowAPI\Exception\ParameterException;
-use MailCowAPI\MailBoxes\MailBoxes;
+use Vexura\Aliases\Aliases;
+use Vexura\AntiSpam\AntiSpam;
+use Vexura\Domains\Domains;
+use Vexura\Exception\ParameterException;
+use Vexura\MailBoxes\MailBoxes;
 use Psr\Http\Message\ResponseInterface;
 
 class MailCowAPI

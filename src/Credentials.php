@@ -1,7 +1,7 @@
 <?php
 
 
-namespace MailCowAPI;
+namespace Vexura;
 
 class Credentials
 {

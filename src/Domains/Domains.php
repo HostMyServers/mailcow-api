@@ -1,9 +1,9 @@
 <?php
 
 
-namespace MailCowAPI\Domains;
+namespace Vexura\Domains;
 
-use MailCowAPI\MailCowAPI;
+use Vexura\MailCowAPI;
 
 class Domains
 {

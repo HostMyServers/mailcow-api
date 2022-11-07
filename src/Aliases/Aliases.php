@@ -1,8 +1,8 @@
 <?php
 
-namespace MailCowAPI\Aliases;
+namespace Vexura\Aliases;
 
-use MailCowAPI\MailCowAPI;
+use Vexura\MailCowAPI;
 
 class Aliases
 {

@@ -1,8 +1,8 @@
 <?php
 
-namespace MailCowAPI\AntiSpam;
+namespace Vexura\AntiSpam;
 
-use MailCowAPI\MailCowAPI;
+use Vexura\MailCowAPI;
 
 class AntiSpam
 {

@@ -1,6 +1,6 @@
 <?php
 
-namespace MailCowAPI\Exception;
+namespace Vexura\Exception;
 
 use Exception;
 
