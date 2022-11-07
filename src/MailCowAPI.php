@@ -41,13 +41,15 @@ class MailCowAPI
             'follow_redirects' => false,
             'timeout' => 120,
             'http_errors' => false,
+            'return_transfer' => true
+
         ]);
     }
 
     public function setCredentials($credentials, $url)
     {
         if (!$credentials instanceof Credentials) {
-            $credentials = new Credentials($credentials, $url);
+            $credentials = new Credentials($url,$credentials);
         }
 
         $this->credentials = $credentials;
@@ -96,19 +98,19 @@ class MailCowAPI
             throw new ParameterException();
         }
 
-        $params['Authorization'] = 'X-API-Key ' . $this->apiToken;
+        $params['x-api-key'] = $this->apiToken;
 
         switch ($method) {
             case 'GET':
-                return $this->getHttpClient()->get($url, ['verify' => false, 'headers' => ['Content-Type' => 'application/json', 'Accept' => 'application/json', 'Authorization' => 'X-API-Key ' . $this->apiToken]]);
+                return $this->getHttpClient()->get($url, ['verify' => false, 'headers' => ['Content-Type' => 'application/json', 'Accept' => 'application/json', 'x-api-key' => $this->apiToken]]);
             case 'POST':
-                return $this->getHttpClient()->post($url, ['verify' => false, 'headers' => ['Content-Type' => 'application/json', 'Accept' => 'application/json', 'Authorization' => 'X-API-Key ' . $this->apiToken], 'form_params' => $params,]);
+                return $this->getHttpClient()->post($url, ['verify' => false, 'headers' => ['Content-Type' => 'application/json', 'Accept' => 'application/json', 'x-api-key' => $this->apiToken], 'form_params' => $params,]);
             case 'PUT':
-                return $this->getHttpClient()->put($url, ['verify' => false, 'headers' => ['Content-Type' => 'application/json', 'Accept' => 'application/json', 'Authorization' => 'X-API-Key ' . $this->apiToken], 'form_params' => $params,]);
+                return $this->getHttpClient()->put($url, ['verify' => false, 'headers' => ['Content-Type' => 'application/json', 'Accept' => 'application/json', 'x-api-key' => $this->apiToken], 'form_params' => $params,]);
             case 'DELETE':
-                return $this->getHttpClient()->delete($url, ['verify' => false, 'headers' => ['Content-Type' => 'application/json', 'Accept' => 'application/json', 'Authorization' => 'X-API-Key ' . $this->apiToken], 'form_params' => $params,]);
+                return $this->getHttpClient()->delete($url, ['verify' => false, 'headers' => ['Content-Type' => 'application/json', 'Accept' => 'application/json', 'x-api-key' => $this->apiToken], 'form_params' => $params,]);
             case 'PATCH':
-                return $this->getHttpClient()->patch($url, ['verify' => false, 'headers' => ['Content-Type' => 'application/json', 'Accept' => 'application/json', 'Authorization' => 'X-API-Key ' . $this->apiToken], 'form_params' => $params,]);
+                return $this->getHttpClient()->patch($url, ['verify' => false, 'headers' => ['Content-Type' => 'application/json', 'Accept' => 'application/json', 'x-api-key' => $this->apiToken], 'form_params' => $params,]);
             default:
                 throw new ParameterException('Wrong HTTP method passed');
         }
