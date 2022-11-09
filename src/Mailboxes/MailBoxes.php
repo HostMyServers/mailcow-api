@@ -38,13 +38,13 @@ class MailBoxes
      * @param string $mailname ONLY name | Example "mail" for "mail@domain.de"
      * @return array|string
      */
-    public function addMailBox(string $mailname, string $domain, string $full_name, string $password, string $active = "1", string $force_pw_update = "1")
+    public function addMailBox(string $mailname, string $domain, string $full_name, string $password, string $active = "1", string $force_pw_update = "1", string $quota = "1024")
     {
         return $this->MailCowAPI->post('add/mailbox', [
             "local_part" => $mailname,
             "domain" => $domain,
             "name" => $full_name,
-            "quota" => "3072",
+            "quota" => $quota,
             "password" => $password,
             "password2" => $password,
             "active" => $active,
@@ -57,7 +57,7 @@ class MailBoxes
     /**
      * @return array|string
      */
-    public function updateMailBox(string $mail_address, string $full_name, string $password, string $active = "1", string $force_pw_update = "0")
+    public function updateMailBox(string $mail_address, string $full_name, string $password, string $active = "1", string $force_pw_update = "0", string $quota = "1024")
     {
         return $this->MailCowAPI->post('edit/mailbox', [
             "items" => [
@@ -65,7 +65,7 @@ class MailBoxes
             ],
             "attr" => [
                 "name" => $full_name,
-                "quota" => "3072",
+                "quota" => $quota,
                 "password" => $password,
                 "password2" => $password,
                 "active" => $active,
