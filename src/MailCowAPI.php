@@ -9,7 +9,7 @@ use Vexura\AntiSpam\AntiSpam;
 use Vexura\Domains\Domains;
 use Vexura\Exception\ParameterException;
 use Vexura\MailBoxes\MailBoxes;
-use Vexura\MailBoxes\Dkim;
+use Vexura\Dkim\Dkim;
 use Psr\Http\Message\ResponseInterface;
 
 class MailCowAPI
