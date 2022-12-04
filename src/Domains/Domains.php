@@ -38,16 +38,16 @@ class Domains
     /**
      * @return array|string
      */
-    public function addDomain(string $domain, string $description, int $aliases, int $mailboxes)
+    public function addDomain(string $domain, string $description, int $aliases, int $mailboxes, int $defquota, int $maxquota, int $quota)
     {
         return $this->MailCowAPI->post('add/domain', [
             "domain" => $domain,
             "description" => $description,
             "aliases" => $aliases,
             "mailboxes" => $mailboxes,
-            "defquota" => "3072",
-            "maxquota" => "10240",
-            "quota" => "10240",
+            "defquota" => $defquota,
+            "maxquota" => $maxquota,
+            "quota" => $quota,
             "active" => "1",
             "rl_value" => "10",
             "rl_frame" => "s",
