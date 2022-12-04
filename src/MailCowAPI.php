@@ -9,6 +9,7 @@ use Vexura\AntiSpam\AntiSpam;
 use Vexura\Domains\Domains;
 use Vexura\Exception\ParameterException;
 use Vexura\MailBoxes\MailBoxes;
+use Vexura\MailBoxes\Dkim;
 use Psr\Http\Message\ResponseInterface;
 
 class MailCowAPI
@@ -18,6 +19,7 @@ class MailCowAPI
     private $apiToken;
     private $domainsHandler;
     private $antiSpamHandler;
+    private $dkimHandler;
     private $mailBoxesHandler;
     private $aliasesHandler;
 
@@ -179,6 +181,15 @@ class MailCowAPI
     {
         if (!$this->antiSpamHandler) $this->antiSpamHandler = new AntiSpam($this);
         return $this->antiSpamHandler;
+    }
+
+    /**
+     * @return Dkim
+     */
+    public function dkim(): Dkim
+    {
+        if (!$this->dkimHandler) $this->dkimHandler = new Dkim($this);
+        return $this->dkimHandler;
     }
 
     /**
