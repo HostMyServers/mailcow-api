@@ -60,7 +60,7 @@ class Domains
     /**
      * @return array|string
      */
-    public function updateDomain(string $domain, string $description, int $aliases, int $mailboxes)
+    public function updateDomain(string $domain, string $description, int $aliases, int $mailboxes, int $status)
     {
         return $this->MailCowAPI->post('edit/domain', [
             "items" => [
@@ -73,7 +73,7 @@ class Domains
                 "defquota" => "3072",
                 "maxquota" => "10240",
                 "quota" => "10240",
-                "active" => "1",
+                "active" => $status,
                 "rl_value" => "10",
                 "rl_frame" => "s",
                 "backupmx" => "0",
