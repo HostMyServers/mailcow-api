@@ -29,7 +29,7 @@ class Dkim
     /**
      * @return array|string
      */
-    public function generateDkim(string $domain, int $dkim_selector, int $key_size = 1024)
+    public function generateDkim(string $domain, string $dkim_selector, int $key_size = 1024)
     {
         return $this->MailCowAPI->post('add/dkim', [
             "domains" => $domain,
