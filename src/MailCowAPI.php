@@ -41,7 +41,7 @@ class MailCowAPI
         $this->httpClient = $httpClient ?: new Client([
             'allow_redirects' => false,
             'follow_redirects' => false,
-            'timeout' => 4,
+            'timeout' => 60,
             'http_errors' => false,
             'return_transfer' => true
 
