@@ -33,7 +33,7 @@ class Dkim
     {
         return $this->MailCowAPI->post('add/dkim', [
             "domains" => $domain,
-            "dkim_selector" => $object_list,
+            "dkim_selector" => $dkim_selector,
             "key_size" => $key_size
         ]);
     }
