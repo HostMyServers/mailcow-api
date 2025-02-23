@@ -1,6 +1,6 @@
 <?php
 
-namespace Vexura\Exception;
+namespace HostMyServers\Exception;
 
 use Exception;
 

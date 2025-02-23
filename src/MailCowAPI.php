@@ -1,10 +1,10 @@
 <?php
 
-namespace Vexura;
+namespace HostMyServers;
 
 use GuzzleHttp\Client;
 use Psr\Http\Message\ResponseInterface;
-use Vexura\Exception\ParameterException;
+use HostMyServers\Exception\ParameterException;
 use ReflectionClass;
 
 class MailCowAPI
@@ -52,11 +52,11 @@ class MailCowAPI
      * Available handlers mapping
      */
     private const HANDLERS = [
-        'domains' => 'Vexura\Domains\Domains',
-        'antiSpam' => 'Vexura\AntiSpam\AntiSpam',
-        'dkim' => 'Vexura\Dkim\Dkim',
-        'mailBoxes' => 'Vexura\MailBoxes\MailBoxes',
-        'aliases' => 'Vexura\Aliases\Aliases'
+        'domains' => 'HostMyServers\Domains\Domains',
+        'antiSpam' => 'HostMyServers\AntiSpam\AntiSpam',
+        'dkim' => 'HostMyServers\Dkim\Dkim',
+        'mailBoxes' => 'HostMyServers\MailBoxes\MailBoxes',
+        'aliases' => 'HostMyServers\Aliases\Aliases'
     ];
 
     /**

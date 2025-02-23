@@ -1,8 +1,5 @@
 <?php
 
-namespace Vexura\Exception;
+namespace HostMyServers\Exception;
 
-class ParameterException extends \InvalidArgumentException
-{
-
-}
+class ParameterException extends \InvalidArgumentException {}

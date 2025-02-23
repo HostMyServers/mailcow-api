@@ -1,7 +1,6 @@
 <?php
 
-
-namespace Vexura;
+namespace HostMyServers;
 
 class Credentials
 {
@@ -43,5 +42,4 @@ class Credentials
     {
         return $this->token;
     }
-
 }

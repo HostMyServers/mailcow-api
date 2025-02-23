@@ -1,8 +1,8 @@
 <?php
 
-namespace Vexura\Dkim;
+namespace HostMyServers\Dkim;
 
-use Vexura\MailCowAPI;
+use HostMyServers\MailCowAPI;
 
 class Dkim
 {
