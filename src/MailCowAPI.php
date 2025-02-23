@@ -1,63 +1,203 @@
 <?php
 
-
 namespace Vexura;
 
 use GuzzleHttp\Client;
-use Vexura\Aliases\Aliases;
-use Vexura\AntiSpam\AntiSpam;
-use Vexura\Domains\Domains;
-use Vexura\Exception\ParameterException;
-use Vexura\MailBoxes\MailBoxes;
-use Vexura\Dkim\Dkim;
 use Psr\Http\Message\ResponseInterface;
+use Vexura\Exception\ParameterException;
+use ReflectionClass;
 
 class MailCowAPI
 {
+    /**
+     * @var Client
+     */
     private $httpClient;
-    private $credentials;
-    private $apiToken;
-    private $domainsHandler;
-    private $antiSpamHandler;
-    private $dkimHandler;
-    private $mailBoxesHandler;
-    private $aliasesHandler;
 
     /**
-     * MailCowAPI constructor.
-     *
-     * @param string $token API Token for all requests
-     * @param null $httpClient
+     * @var Credentials
      */
-    public function __construct(string $url, string $token, $httpClient = null) {
+    private $credentials;
+
+    /**
+     * @var string
+     */
+    private $apiToken;
+
+    /**
+     * @var array Handler instances
+     */
+    private $handlers = [];
+
+    /**
+     * Default HTTP client configuration
+     */
+    private const HTTP_CLIENT_CONFIG = [
+        'allow_redirects' => false,
+        'follow_redirects' => false,
+        'timeout' => 60,
+        'http_errors' => false,
+        'verify' => false
+    ];
+
+    /**
+     * Default request headers
+     */
+    private const DEFAULT_HEADERS = [
+        'Content-Type' => 'application/json',
+        'Accept' => 'application/json'
+    ];
+
+    /**
+     * Available handlers mapping
+     */
+    private const HANDLERS = [
+        'domains' => 'Vexura\Domains\Domains',
+        'antiSpam' => 'Vexura\AntiSpam\AntiSpam',
+        'dkim' => 'Vexura\Dkim\Dkim',
+        'mailBoxes' => 'Vexura\MailBoxes\MailBoxes',
+        'aliases' => 'Vexura\Aliases\Aliases'
+    ];
+
+    /**
+     * HTTP methods mapping
+     */
+    private const HTTP_METHODS = [
+        'get' => 'GET',
+        'post' => 'POST',
+        'put' => 'PUT',
+        'delete' => 'DELETE',
+        'patch' => 'PATCH'
+    ];
+
+    /**
+     * MailCowAPI constructor
+     *
+     * @param string $url Base URL for the API
+     * @param string $token API Token for authentication
+     * @param Client|null $httpClient Custom HTTP client (optional)
+     */
+    public function __construct(string $url, string $token, ?Client $httpClient = null)
+    {
         $this->apiToken = $token;
         $this->setHttpClient($httpClient);
         $this->setCredentials($token, $url);
     }
 
-
-    public function setHttpClient(Client $httpClient = null)
+    /**
+     * Set the HTTP client
+     *
+     * @param Client|null $httpClient
+     * @return void
+     */
+    public function setHttpClient(?Client $httpClient = null): void
     {
-        $this->httpClient = $httpClient ?: new Client([
-            'allow_redirects' => false,
-            'follow_redirects' => false,
-            'timeout' => 60,
-            'http_errors' => false,
-            'return_transfer' => true
-
-        ]);
+        $this->httpClient = $httpClient ?: new Client(self::HTTP_CLIENT_CONFIG);
     }
 
-    public function setCredentials($credentials, $url)
+    /**
+     * Set API credentials
+     *
+     * @param string|Credentials $credentials
+     * @param string $url
+     * @return void
+     */
+    public function setCredentials($credentials, string $url): void
     {
         if (!$credentials instanceof Credentials) {
-            $credentials = new Credentials($url,$credentials);
+            $credentials = new Credentials($url, $credentials);
         }
-
         $this->credentials = $credentials;
     }
 
     /**
+     * Magic method to handle API requests
+     *
+     * @param string $name
+     * @param array $arguments
+     * @return mixed
+     * @throws ParameterException
+     */
+    public function __call(string $name, array $arguments)
+    {
+        // Check if it's an HTTP method
+        if (isset(self::HTTP_METHODS[strtolower($name)])) {
+            $method = self::HTTP_METHODS[strtolower($name)];
+            $path = $arguments[0] ?? '';
+            $params = $arguments[1] ?? [];
+
+            return $this->processRequest(
+                $this->request($path, $params, $method)
+            );
+        }
+
+        // Check if it's a handler request
+        if (isset(self::HANDLERS[$name])) {
+            return $this->getHandler($name);
+        }
+
+        throw new ParameterException("Method {$name} not found");
+    }
+
+    /**
+     * Make an API request
+     *
+     * @param string $actionPath The resource path
+     * @param array $params Request parameters
+     * @param string $method HTTP method
+     * @return ResponseInterface
+     * @throws ParameterException
+     */
+    private function request(string $actionPath, array $params = [], string $method = 'GET'): ResponseInterface
+    {
+        if (!in_array($method, self::HTTP_METHODS)) {
+            throw new ParameterException('Invalid HTTP method');
+        }
+
+        $url = $this->getCredentials()->getUrl() . $actionPath;
+        $headers = array_merge(self::DEFAULT_HEADERS, ['x-api-key' => $this->apiToken]);
+        $options = ['headers' => $headers, 'verify' => false];
+
+        if (!empty($params)) {
+            $options['json'] = $params;
+        }
+
+        return $this->httpClient->request($method, $url, $options);
+    }
+
+    /**
+     * Process API response
+     *
+     * @param ResponseInterface $response
+     * @return mixed
+     */
+    private function processRequest(ResponseInterface $response)
+    {
+        $content = $response->getBody()->__toString();
+        $result = json_decode($content);
+
+        return (json_last_error() === JSON_ERROR_NONE) ? $result : $content;
+    }
+
+    /**
+     * Get or create a handler instance
+     *
+     * @param string $name
+     * @return mixed
+     */
+    private function getHandler(string $name)
+    {
+        if (!isset($this->handlers[$name])) {
+            $class = self::HANDLERS[$name];
+            $this->handlers[$name] = new $class($this);
+        }
+
+        return $this->handlers[$name];
+    }
+
+    /**
+     * Get the HTTP client instance
+     *
      * @return Client
      */
     public function getHttpClient(): Client
@@ -66,149 +206,22 @@ class MailCowAPI
     }
 
     /**
+     * Get the API token
+     *
      * @return string
      */
-    public function getToken()
+    public function getToken(): string
     {
         return $this->apiToken;
     }
 
-
     /**
+     * Get the credentials instance
+     *
      * @return Credentials
      */
     private function getCredentials(): Credentials
     {
         return $this->credentials;
     }
-
-
-    /**
-     * @param string $actionPath The resource path you want to request, see more at the documentation.
-     * @param array $params Array filled with request params
-     * @param string $method HTTP method used in the request
-     *
-     * @return ResponseInterface
-     *
-     * @throws ParameterException If the given field in params is not an array
-     */
-    private function request(string $actionPath, array $params = [], string $method = 'GET'): ResponseInterface
-    {
-        $url = $this->getCredentials()->getUrl() . $actionPath;
-
-        if (!is_array($params)) {
-            throw new ParameterException();
-        }
-
-        $params['x-api-key'] = $this->apiToken;
-
-        switch ($method) {
-            case 'GET':
-                return $this->getHttpClient()->get($url, ['verify' => false, 'headers' => ['Content-Type' => 'application/json', 'Accept' => 'application/json', 'x-api-key' => $this->apiToken]]);
-            case 'POST':
-                return $this->getHttpClient()->post($url, ['verify' => false, 'headers' => ['Content-Type' => 'application/json', 'Accept' => 'application/json', 'x-api-key' => $this->apiToken], 'json' => $params,]);
-            case 'PUT':
-                return $this->getHttpClient()->put($url, ['verify' => false, 'headers' => ['Content-Type' => 'application/json', 'Accept' => 'application/json', 'x-api-key' => $this->apiToken], 'json' => $params,]);
-            case 'DELETE':
-                return $this->getHttpClient()->delete($url, ['verify' => false, 'headers' => ['Content-Type' => 'application/json', 'Accept' => 'application/json', 'x-api-key' => $this->apiToken], 'json' => $params,]);
-            case 'PATCH':
-                return $this->getHttpClient()->patch($url, ['verify' => false, 'headers' => ['Content-Type' => 'application/json', 'Accept' => 'application/json', 'x-api-key' => $this->apiToken], 'json' => $params,]);
-            default:
-                throw new ParameterException('Wrong HTTP method passed');
-        }
-    }
-
-    private function processRequest(ResponseInterface $response)
-    {
-        $response = $response->getBody()->__toString();
-        $result = json_decode($response);
-        if (json_last_error() == JSON_ERROR_NONE) {
-            return $result;
-        } else {
-            return $response;
-        }
-    }
-
-
-    public function get($actionPath, $params = [])
-    {
-        $response = $this->request($actionPath, $params);
-
-        return $this->processRequest($response);
-    }
-
-    public function post($actionPath, $params = [])
-    {
-        $response = $this->request($actionPath, $params, 'POST');
-
-        return $this->processRequest($response);
-    }
-
-    public function put($actionPath, $params = [])
-    {
-        $response = $this->request($actionPath, $params, 'PUT');
-
-        return $this->processRequest($response);
-    }
-
-    public function delete($actionPath, $params = [])
-    {
-        $response = $this->request($actionPath, $params, 'DELETE');
-
-        return $this->processRequest($response);
-    }
-
-    public function patch($actionPath, $params = [])
-    {
-        $response = $this->request($actionPath, $params, 'PATCH');
-
-        return $this->processRequest($response);
-    }
-
-    /**
-     * @return Domains
-     */
-    public function domains(): Domains
-    {
-        if (!$this->domainsHandler) $this->domainsHandler = new Domains($this);
-        return $this->domainsHandler;
-    }
-
-    /**
-     * @return AntiSpam
-     */
-    public function antiSpam(): AntiSpam
-    {
-        if (!$this->antiSpamHandler) $this->antiSpamHandler = new AntiSpam($this);
-        return $this->antiSpamHandler;
-    }
-
-    /**
-     * @return Dkim
-     */
-    public function dkim(): Dkim
-    {
-        if (!$this->dkimHandler) $this->dkimHandler = new Dkim($this);
-        return $this->dkimHandler;
-    }
-
-    /**
-     * @return MailBoxes
-     */
-    public function mailBoxes (): MailBoxes
-    {
-        if (!$this->mailBoxesHandler) $this->mailBoxesHandler = new MailBoxes($this);
-        return $this->mailBoxesHandler;
-    }
-
-    /**
-     * @return Aliases
-     */
-    public function aliases (): Aliases
-    {
-        if (!$this->aliasesHandler) $this->aliasesHandler = new Aliases($this);
-        return $this->aliasesHandler;
-    }
-
-
 }
